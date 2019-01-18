@@ -1,12 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="utf-8">
+  <title>title</title>
+  <link rel="stylesheet" href="styles.css">
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<h1>Pipeline Dashboard</h1>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>  
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
-
 <script>
-/* I put your JSON into an external file, loaded from github */
-var url = "https://raw.githubusercontent.com/mspanish/playground/master/jessica.json";
-
-/* this tells the page to wait until jQuery has loaded, so you can use the Ajax call */
+var url = "http://localhost:8000/status.json";
 
 $(document).ready(function(){
   $.ajax({
@@ -15,25 +26,24 @@ $(document).ready(function(){
       error: function(){
         console.log('JSON FAILED for data');
       },
-    success:function(results){
-  /* the results is your json, you can reference the elements directly by using it here, without creating any additional variables */
+    success:function(data){
 
-      var cartItemsList = document.getElementById("cartItemsList");
+      var pipeline_template = "{{#pipelines}}<h2>{{name}}</h2>" +
+          '<ul>{{#stages}}{{>stage}}{{/stages}}</ul>{{/pipelines}}';
+      const stage_tpl = "<li>{{name}} <br>  {{status}} {{succeedTime}} <ul>{{#actions}}{{>action}}{{/actions}}</ul></li>"
+      const action_tpl = "<li>{{name}} {{status}} </li>"
+      var partials = {stage: stage_tpl, action: action_tpl};
 
-      results.basket.productList.forEach(function(element) {
-      cartItemsList.insertAdjacentHTML( 'beforeend',"<li>" +              element.product.name + " : " + element.price+ " </li>");
-      }); // end of forEach
+      var html = Mustache.to_html(pipeline_template, data, partials);
+      $('#content_container').html(html);
+      
     }  // end of success fn
    }) // end of Ajax call
  }) // end of $(document).ready() function
 </script>
 
 
-<h1>My Cart</h1>
-<div id="cart">
-    <h2>Cart Items</h2>
-    <ul id="cartItemsList">
-    </ul>
-</div>
+<div id="content_container"></div>
+</body>
 
-
+</html>

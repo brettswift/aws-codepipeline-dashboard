@@ -2,21 +2,34 @@
   "pipelines": [
     {
       "name": "firstPipeline",
+      "url": "http://codepipeline.com",
       "stages": [
         {
           "name": "sourceStage",
           "status": "Succeeded",
-          "succeedTime": "10:00am"
+          "succeedTime": "10:00am",
+          "actions": [
+            { "name": "pipeline_artifact",  "status": "succeeded" },
+            { "name": "app_artifact",  "status": "succeeded" }
+          ]
         },
         {
-          "name": "DeployPipelineStage",
+          "name": "Staging",
           "status": "Succeeded",
-          "succeedTime": "10:05am"
+          "succeedTime": "10:05am",
+          "actions": [
+            { "name": "CopyObject",  "status": "succeeded" },
+            { "name": "StartPipeline",  "status": "succeeded" }
+          ]
         },
         {
-          "name": "DeployAppStage",
+          "name": "Prod",
           "status": "InProgress",
-          "succeedTime": "null"
+          "succeedTime": "null",
+          "actions": [
+            { "name": "CopyObject",  "status": "succeeded" },
+            { "name": "StartPipeline",  "status": "InProgress" }
+          ]
         }
       ]
     }
