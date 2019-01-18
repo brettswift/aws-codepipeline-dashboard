@@ -1,0 +1,24 @@
+{
+  "pipelines": [
+    {
+      "name": "firstPipeline",
+      "stages": [
+        {
+          "name": "sourceStage",
+          "status": "Succeeded",
+          "succeedTime": "10:00am"
+        },
+        {
+          "name": "DeployPipelineStage",
+          "status": "Succeeded",
+          "succeedTime": "10:05am"
+        },
+        {
+          "name": "DeployAppStage",
+          "status": "InProgress",
+          "succeedTime": "null"
+        }
+      ]
+    }
+  ]
+}
