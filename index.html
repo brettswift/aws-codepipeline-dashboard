@@ -22,19 +22,25 @@
   <script type="text/javascript">
   // Pattern based on https://gist.github.com/morena/87f80bac4f73072d9ec2
   $(document).ready(function(){
-    $.when(
-        $.ajax({url: "templates.mst", dataType: 'text'}),
-        $.ajax({url: "status.json"})
-    )
-    .done(function(template, data){
-      Mustache.parse(template[0]);
-      const json = data[0]
-      var rendered = Mustache.render(template[0], json);
-      $('#container').html(rendered);
-    })
-    .fail(function(){
-      alert("Sorry there was an error.");
-    });
+    refresh();
+
+    function refresh(){
+
+      $.when(
+          $.ajax({url: "templates.mst", dataType: 'text'}),
+          $.ajax({url: "status.json"})
+      )
+      .done(function(template, data){
+        Mustache.parse(template[0]);
+        const json = data[0]
+        var rendered = Mustache.render(template[0], json);
+        $('#container').html(rendered);
+        setInterval(refresh, 60 * 1000); // refresh every min.
+      })
+      .fail(function(){
+        alert("Sorry there was an error.");
+      });
+    }
   });
   </script>
     
