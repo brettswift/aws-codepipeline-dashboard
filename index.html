@@ -29,11 +29,8 @@
     .done(function(template, data){
       Mustache.parse(template[0]);
       const json = data[0]
-      // console.log(JSON.stringify(json, null, 2))
-      console.log(template)
       var rendered = Mustache.render(template[0], json);
       $('#container').html(rendered);
-
     })
     .fail(function(){
       alert("Sorry there was an error.");
@@ -42,44 +39,5 @@
   </script>
     
   </body>
-<!-- 
-<body>
-
-<h1>Pipeline Dashboard</h1>
-
-<script>
-var url = "http://localhost:8000/status.json";
-
-$(document).ready(function(){
-  $.ajax({
-    url: url,
-    dataType: 'json',
-      error: function(){
-        console.log('JSON FAILED for data');
-      },
-    success:function(data){
-
-      var pipeline_template = 
-        "{{#pipelines}}" + 
-          '<div class="pipeline"> ' + 
-          '<div class="pipelineName">{{name}}</div>' +
-          '<ul>{{#stages}}{{>stage}}{{/stages}}</ul>{{/pipelines}}' + 
-          '</div>';
-
-      const stage_tpl = "<li>{{name}} <br>  {{status}} {{succeedTime}} <ul>{{#actions}}{{>action}}{{/actions}}</ul></li>"
-      const action_tpl = "<li>{{name}} {{status}} </li>"
-      var partials = {stage: stage_tpl, action: action_tpl};
-
-      var html = Mustache.to_html(pipeline_template, data, partials);
-      $('#content_container').html(html);
-      
-    }  // end of success fn
-   }) // end of Ajax call
- }) // end of $(document).ready() function
-</script>
-
-
-<div id="content_container"></div>
-</body> -->
 
 </html>
