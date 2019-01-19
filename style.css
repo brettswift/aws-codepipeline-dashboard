@@ -2,33 +2,90 @@
   display: inline;
 } */
 
-ul {
-  list-style-type: none;
-  margin: 0;
+/* ----- */
+/* ul.pipeline {
+  border:3px solid black;
   padding: 0;
-  overflow: hidden;
-  background-color: rgb(148, 255, 143);
-  width: 100%
+  display:inline;
+  width:100%;
+  box-sizing:border-box;  
+}
+*/
+
+/* li {
+  background-color: red;
+  display:inline;
+} */
+
+/* li:nth-child(2n) {
+  background-color: #0F0;
+} */
+
+
+body {
+  margin: 5px;
+  background-color: rgb(32, 36, 36);
+  color: white;
+}
+
+div {
+  display: inline-block;
+  margin: 0px;
+  padding: 0px;
+}
+
+div.pipeline{
+  width: 100%;
+  margin: 4px;
+  padding: 0px;
+}
+
+div.pipelineName{
+  font-weight: 900;
+  font-size: 1.5em;
+}
+
+ul.pipelineStages {
+  width: 98%;
+  margin: 0px;
+  margin-left: 1em;
+  padding: 3px;
+}
+
+li.pipelineStage {
+  /* background-color: darkgoldenrod; */
+  padding: 5px;
+}
+ul.actions {
+  width: 98%;
+  margin: 0px;
+  padding: 3px;
+}
+
+li.action {
+}
+
+ul {
+  border-width: 5px;
+  display: table;
+  table-layout: fixed;
+  color: black;
 }
 
 li {
-  float: left;
-  padding-right: 5%;
-  width: auto;
-  margin-right: 0.5%;
-  /* padding-left: 0;
-  margin-left: 0; */
+  display: table-cell;
+  background-color: darkgray;
 }
 
-li a {
-  display: inline-block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
+.succeeded{
+  background-color: palegreen;
 }
 
-/* Change the link color to #111 (black) on hover */
-li a:hover {
-  background-color: #111;
+.inProgress{
+  background-color: cornflowerblue;
+}
+
+.failed{
+  background-color: palevioletred;
+  font-weight: bolder;
 }
