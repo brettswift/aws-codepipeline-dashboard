@@ -28,8 +28,13 @@ $(document).ready(function(){
       },
     success:function(data){
 
-      var pipeline_template = "{{#pipelines}}<h2>{{name}}</h2>" +
-          '<ul>{{#stages}}{{>stage}}{{/stages}}</ul>{{/pipelines}}';
+      var pipeline_template = 
+        "{{#pipelines}}" + 
+          '<div class="pipeline"> ' + 
+          '<div class="pipelineName">{{name}}</div>' +
+          '<ul>{{#stages}}{{>stage}}{{/stages}}</ul>{{/pipelines}}' + 
+          '</div>';
+
       const stage_tpl = "<li>{{name}} <br>  {{status}} {{succeedTime}} <ul>{{#actions}}{{>action}}{{/actions}}</ul></li>"
       const action_tpl = "<li>{{name}} {{status}} </li>"
       var partials = {stage: stage_tpl, action: action_tpl};
