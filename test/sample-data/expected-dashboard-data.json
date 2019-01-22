@@ -1,0 +1,70 @@
+{
+  "pipelines": [
+    {
+      "name": "firstPipeline",
+      "url": "http://codepipeline.com",
+      "stages": [
+        {
+          "name": "sourceStage",
+          "status": "succeeded",
+          "succeedTime": "10:00am",
+          "actions": [
+            { "name": "pipeline_artifact",  "status": "succeeded" },
+            { "name": "app_artifact",  "status": "succeeded" }
+          ]
+        },
+        {
+          "name": "Staging",
+          "status": "succeeded",
+          "succeedTime": "10:05am",
+          "actions": [
+            { "name": "CopyObject",  "status": "succeeded" },
+            { "name": "StartPipeline",  "status": "succeeded" }
+          ]
+        },
+        {
+          "name": "Prod",
+          "status": "inProgress",
+          "succeedTime": "null",
+          "actions": [
+            { "name": "CopyObject",  "status": "succeeded" },
+            { "name": "StartPipeline",  "status": "inProgress" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "secondPipeline",
+      "url": "http://codepipeline.com",
+      "stages": [
+        {
+          "name": "sourceStage",
+          "status": "succeeded",
+          "succeedTime": "10:00am",
+          "actions": [
+            { "name": "pipeline_artifact",  "status": "succeeded" },
+            { "name": "app_artifact",  "status": "succeeded" }
+          ]
+        },
+        {
+          "name": "Staging",
+          "status": "inProgress",
+          "succeedTime": "10:05am",
+          "actions": [
+            { "name": "CopyObject",  "status": "failed" },
+            { "name": "StartPipeline",  "status": "inProgress" }
+          ]
+        },
+        {
+          "name": "Prod",
+          "status": "failed",
+          "succeedTime": "null",
+          "actions": [
+            { "name": "CopyObject",  "status": "failed" },
+            { "name": "StartPipeline",  "status": "failed" }
+          ]
+        }
+      ]
+    }
+  ]
+}
