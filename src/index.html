@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Pipeline Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Jura:700" rel="stylesheet">
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      refresh();
+  
+      function refresh(){
+  
+        $.when(
+            $.ajax({url: "templates.mst", dataType: 'text', cache: false}),
+            $.ajax({url: "pipeline-state.json", cache: false})
+        )
+        .done(function(template, data){
+          console.log(data)
+          Mustache.parse(template[0]);
+          const json = data[0]
+          var rendered = Mustache.render(template[0], json);
+          $('#container').html(rendered);
+          setTimeout(refresh, 60 * 1000); // refresh every min.
+        })
+        .fail(function(){
+          alert("Sorry there was an error.");
+        });
+      }
+    });
+    </script>
+</head>
+<body>
+
+  <h1>Pipeline Dashboard</h1>
+  <div id="container">
+    
+  </div>
+  </body>
+
+</html>

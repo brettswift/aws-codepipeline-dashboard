@@ -1,0 +1,26 @@
+{{#pipelines}}
+<div class="pipeline">
+  <div class="pipelineName">{{pipelineName}}</div>
+  <ul class="pipelineStages">
+  {{#stageStates}}
+      <li class="pipelineStage {{latestExecution.status}}">
+        {{stageName}} 
+        <ul class="actions">
+        {{#actionStates}}
+            <li class="action {{latestExecution.status}}">
+              {{#latestExecution.externalExecutionUrl}}
+                <a href={{latestExecution.externalExecutionUrl}}>{{actionName}}</a>
+              {{/latestExecution.externalExecutionUrl}}
+              {{^latestExecution.externalExecutionUrl}}
+                <a href={{entityUrl}}>{{actionName}}</a>
+              {{/latestExecution.externalExecutionUrl}}
+            </li>
+        {{/actionStates}}
+        </ul>
+      </li>
+  {{/stageStates}}
+  </ul>
+</div>
+{{/pipelines}}
+
+

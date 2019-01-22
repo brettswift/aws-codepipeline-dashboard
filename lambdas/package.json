@@ -1,0 +1,20 @@
+{
+  "name": "lambdas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "aws-sdk": "^2.392.0"
+  },
+  "dependencies": {
+    "lambda-log": "^2.1.0"
+  }
+}
