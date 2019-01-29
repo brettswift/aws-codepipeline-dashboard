@@ -116,7 +116,7 @@ export class CodepipelineDashboardStack extends cdk.Stack {
     // lambda function to handle events from codepipeline
     const pipeline_event_lambda = new lambda.Function(this, 'PipelineUpdateEvent', {
       runtime: lambda.Runtime.NodeJS810,
-      handler: 'handlers/handlePipelineEvent.handle',
+      handler: 'handlePipelineEvent/handlePipelineEvent.handle',
       code: lambda.Code.asset('../lambdas'),
       role: role,
     });
@@ -124,7 +124,7 @@ export class CodepipelineDashboardStack extends cdk.Stack {
     //  lambda function to aggregate dynamo records into dashboard data
     const pipeline_summary_lambda = new lambda.Function(this, 'PipelineSummary', {
       runtime: lambda.Runtime.NodeJS810,
-      handler: 'handlers/createPipelineSummary.handle',
+      handler: 'createPipelineSummary/createPipelineSummary.handle',
       code: lambda.Code.asset('../lambdas'),
       role: role,
     });

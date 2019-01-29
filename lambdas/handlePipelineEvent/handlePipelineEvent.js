@@ -1,5 +1,6 @@
 const AWS = require("aws-sdk");
-const logger = require('../lib/logger')(module.filename);
+
+const logger = require('logging/logger')(module.filename)
 
 var codepipeline = new AWS.CodePipeline();
 

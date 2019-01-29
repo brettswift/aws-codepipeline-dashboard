@@ -1,11 +1,10 @@
 {
-  "name": "lambdas",
+  "name": "logging",
   "version": "1.0.0",
   "description": "",
-  "main": "none",
+  "main": "logger.js",
   "scripts": {
-    "test": "exit 1 ",
-    "build": "node build_all.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC"

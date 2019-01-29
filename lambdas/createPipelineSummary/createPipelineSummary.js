@@ -1,5 +1,7 @@
 const AWS = require("aws-sdk");
-const logger = require("../lib/logger")(module.filename);
+// const logger = require("../lib/logger")(module.filename);
+
+const logger = require('logging/logger')(module.filename)
 
 async function getAllPipelineStates() {
   var documentClient = new AWS.DynamoDB.DocumentClient();
