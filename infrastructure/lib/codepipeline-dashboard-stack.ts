@@ -109,8 +109,9 @@ export class CodepipelineDashboardStack extends cdk.Stack {
         "DYNAMODB_TABLE_NAME": table.tableName
       }
     }
-    new DashLambda(this, 'pipeline_event_lambda', pipe_event_props)
-
+    const pipeline_event_lambda = new DashLambda(this, 'pipeline_event_lambda', pipe_event_props)
+    pipeline_event_lambda.add_pipeline_action_events()
+    
     const pipe_summary_props: DashLambdaProps = {
       role: role,
       handler: 'createPipelineSummary/createPipelineSummary.handle',
@@ -122,7 +123,8 @@ export class CodepipelineDashboardStack extends cdk.Stack {
       }
     }
     const pipeline_summary_lambda = new DashLambda(this, 'pipeline_summary_lambda', pipe_summary_props)
- 
+    pipeline_summary_lambda.add_pipeline_action_events()
+
     // TODO: add timer event on lambda
     // TODO: remove this when websockets are introduced.
     new events.EventRule(this, 'ScheduledEvent', {
