@@ -134,6 +134,27 @@ export class CodepipelineDashboardStack extends cdk.Stack {
       scheduleExpression: 'cron(0/1 11-1 ? * MON-FRI *)', //every minute, between 11-1 UTC (MST: 4am-6pm), MON-FRI
     })
 
+
+    const socket_connect_lambda: DashLambdaProps = {
+      role: role,
+      handler: 'socket_onconnect/on_connect.handle',
+      environment: {
+        "DYNAMODB_TABLE_NAME": table.tableName
+      }
+    }
+    new DashLambda(this, 'dashboard_socket_connect', socket_connect_lambda)
+
+
+    const socket_disconnect_lambda: DashLambdaProps = {
+      role: role,
+      handler: 'socket_ondisconnect/on_disconnect.handle',
+      environment: {
+        "DYNAMODB_TABLE_NAME": table.tableName
+      }
+    }
+    new DashLambda(this, 'dashboard_socket_disconnect', socket_disconnect_lambda)
+
+
     the_bucket.addToResourcePolicy(new iam.PolicyStatement()
       .addAction('s3:*')
       .addResource(the_bucket.arnForObjects('*'))
