@@ -1,7 +1,7 @@
 {
   "pipelines": [
     {
-      "pipelineName": "jshaskin-staging-domainservice-pipeline-Pipeline-15XVJ45IW4JD1",
+      "pipelineName": "demo-pipeline-15XVJ45IW4JD1",
       "pipelineVersion": 2,
       "stageStates": [
         {
@@ -60,7 +60,7 @@
               "entityUrl": "https://us-west-2.console.aws.amazon.com/cloudformation/home?/"
             },
             {
-              "actionName": "dothing1",
+              "actionName": "SmokeTest",
               "currentRevision": {
                 "revisionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
               },
@@ -73,7 +73,7 @@
               "entityUrl": "https://console.aws.amazon.com/s3/home?#"
             },
             {
-              "actionName": "dothing2",
+              "actionName": "RegressionTest",
               "currentRevision": {
                 "revisionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
               },
@@ -86,12 +86,12 @@
               "entityUrl": "https://console.aws.amazon.com/s3/home?#"
             },
             {
-              "actionName": "dothing3",
+              "actionName": "EnableTraffic",
               "currentRevision": {
                 "revisionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
               },
               "latestExecution": {
-                "status": "Succeeded",
+                "status": "InProgress",
                 "summary": "Amazon S3 version id: qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz",
                 "lastStatusChange": 1547685856.829,
                 "externalExecutionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
@@ -105,13 +105,13 @@
           }
         },
         {
-          "stageName": "Test",
+          "stageName": "Prod",
           "inboundTransitionState": {
             "enabled": true
           },
           "actionStates": [
             {
-              "actionName": "RunTests",
+              "actionName": "Deploy",
               "latestExecution": {
                 "status": "Succeeded",
                 "lastStatusChange": 1547686021.568,
@@ -119,11 +119,37 @@
                 "externalExecutionUrl": "https://us-west-2.console.aws.amazon.com/codebuild/home?#/builds/techenablement-staging-DomainServicePipelineProjectTestRunTests:b457eb29-18bc-4180-a279-7654acfe2053/view/new"
               },
               "entityUrl": "https://us-west-2.console.aws.amazon.com/codebuild/home?#/projects/techenablement-staging-DomainServicePipelineProjectTestRunTests/view"
+            },
+            {
+              "actionName": "Test",
+              "currentRevision": {
+                "revisionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
+              },
+              "latestExecution": {
+                "status": "Succeeded",
+                "summary": "Amazon S3 version id: qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz",
+                "lastStatusChange": 1547685856.829,
+                "externalExecutionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
+              },
+              "entityUrl": "https://console.aws.amazon.com/s3/home?#"
+            },
+            {
+              "actionName": "EnableTraffic",
+              "currentRevision": {
+                "revisionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
+              },
+              "latestExecution": {
+                "status": "Succeeded",
+                "summary": "Amazon S3 version id: qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz",
+                "lastStatusChange": 1547685856.829,
+                "externalExecutionId": "qiCxINJIhNPOjK.3UjNRsA3zcTDCM2Gz"
+              },
+              "entityUrl": "https://console.aws.amazon.com/s3/home?#"
             }
           ],
           "latestExecution": {
             "pipelineExecutionId": "8a1b7cc4-9ce2-429b-a8f6-93a2b61a9a17",
-            "status": "InProgress"
+            "status": "Succeeded"
           }
         }
       ],
