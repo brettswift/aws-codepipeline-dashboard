@@ -33,6 +33,16 @@ export class DashLambda extends cdk.Construct {
     
   }
 
+  add_api_gateway_websocket_permission(){
+
+    this.handler.addPermission('allowCloudWatchInvocation', {
+      principal: new iam.ServicePrincipal('*.amazonaws.com'),
+      // TODO: add arn when websocket support is here
+      sourceArn: "*",
+    });
+
+  }
+
   add_pipeline_action_events(){
     const pipeline_event_rule = new events.EventRule(this, 'PipelineEvent', {
         ruleName: 'PipelineEventRule_' + this.id,

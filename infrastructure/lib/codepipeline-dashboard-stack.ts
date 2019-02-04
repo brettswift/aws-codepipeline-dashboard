@@ -142,8 +142,9 @@ export class CodepipelineDashboardStack extends cdk.Stack {
         "DYNAMODB_TABLE_NAME": table.tableName
       }
     }
-    new DashLambda(this, 'dashboard_socket_connect', socket_connect_lambda)
+    const onconnect_lambda = new DashLambda(this, 'dashboard_socket_connect', socket_connect_lambda)
 
+    onconnect_lambda.add_pipeline_action_events()
 
     const socket_disconnect_lambda: DashLambdaProps = {
       role: role,
@@ -152,8 +153,17 @@ export class CodepipelineDashboardStack extends cdk.Stack {
         "DYNAMODB_TABLE_NAME": table.tableName
       }
     }
-    new DashLambda(this, 'dashboard_socket_disconnect', socket_disconnect_lambda)
+    const disconnect_lambda = new DashLambda(this, 'dashboard_socket_disconnect', socket_disconnect_lambda)
+    disconnect_lambda.add_pipeline_action_events()
 
+    const socket_send_message_lambda: DashLambdaProps = {
+      role: role,
+      handler: 'socket_sendmessage/sendmessage.handle',
+      environment: {
+        "DYNAMODB_TABLE_NAME": table.tableName
+      }
+    }
+    new DashLambda(this, 'dashboard_socket_sendmessage', socket_send_message_lambda)
 
     the_bucket.addToResourcePolicy(new iam.PolicyStatement()
       .addAction('s3:*')
