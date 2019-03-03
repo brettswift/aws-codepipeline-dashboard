@@ -1,24 +1,12 @@
+import { DashLambdaProps, DashLambda } from './dashboard-lambda';
 import dynamodb = require('@aws-cdk/aws-dynamodb');
-import lambda = require('@aws-cdk/aws-lambda');
 import s3 = require('@aws-cdk/aws-s3');
 import s3deploy = require('@aws-cdk/aws-s3-deployment');
 import iam = require('@aws-cdk/aws-iam');
 import route53 = require('@aws-cdk/aws-route53');
 import events = require('@aws-cdk/aws-events')
 import cdk = require('@aws-cdk/cdk');
-
-function assert_required_param(param_name: string, param_value: string, suggestion?: string){
-  suggestion = suggestion || '<value>'
-  if(! param_value){
-    console.log("-------- PARAMETER REQUIRED ------")
-    console.log(`${param_name} is a required parameter` + 
-    `You can add it like this:  cdk deploy -c ${param_name}=${suggestion}`
-    )
-    console.log("")
-    throw new Error("required parameter")
-  }
-
-}
+import { assert_required_param } from './validation';
 
 export class CodepipelineDashboardStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -113,64 +101,43 @@ export class CodepipelineDashboardStack extends cdk.Stack {
       .addResource(the_bucket.bucketArn + "/*")
     );
 
-    // lambda function to handle events from codepipeline
-    const pipeline_event_lambda = new lambda.Function(this, 'PipelineUpdateEvent', {
-      runtime: lambda.Runtime.NodeJS810,
+    const pipe_event_props: DashLambdaProps = {
+      role: role,
       handler: 'handlePipelineEvent/handlePipelineEvent.handle',
-      code: lambda.Code.asset('../lambdas'),
+      environment: {
+        "DYNAMODB_TABLE_ARN": table.tableArn,
+        "DYNAMODB_TABLE_NAME": table.tableName
+      }
+    }
+    const pipeline_event_lambda = new DashLambda(this, 'pipeline_event_lambda', pipe_event_props)
+    pipeline_event_lambda.add_pipeline_action_events()
+    
+    const pipe_summary_props: DashLambdaProps = {
       role: role,
-    });
-
-    //  lambda function to aggregate dynamo records into dashboard data
-    const pipeline_summary_lambda = new lambda.Function(this, 'PipelineSummary', {
-      runtime: lambda.Runtime.NodeJS810,
       handler: 'createPipelineSummary/createPipelineSummary.handle',
-      code: lambda.Code.asset('../lambdas'),
-      role: role,
-    });
+      environment: {
+        "DYNAMODB_TABLE_ARN": table.tableArn,
+        "DYNAMODB_TABLE_NAME": table.tableName,
+        "S3_BUCKET_NAME": the_bucket.bucketName,
+        "S3_BUCKET_DATA_KEY": 'pipeline-state.json',
+      }
+    }
+    const pipeline_summary_lambda = new DashLambda(this, 'pipeline_summary_lambda', pipe_summary_props)
+    pipeline_summary_lambda.add_pipeline_action_events()
 
     // TODO: add timer event on lambda
-    const dashboard_summary_rule = new events.EventRule(this, 'ScheduledEvent', {
+    // TODO: remove this when websockets are introduced.
+    new events.EventRule(this, 'ScheduledEvent', {
       ruleName: 'ScheduledDashboardSummaryRule',
       description: 'Runs on a schedule to update the dashboard json',
-      targets: [pipeline_summary_lambda],
+      targets: [pipeline_summary_lambda.handler],
       scheduleExpression: 'cron(0/1 11-1 ? * MON-FRI *)', //every minute, between 11-1 UTC (MST: 4am-6pm), MON-FRI
     })
-
-    pipeline_summary_lambda.addPermission('allowCloudWatchInvocation', {
-      principal: new iam.ServicePrincipal('events.amazonaws.com'),
-      sourceArn: dashboard_summary_rule.ruleArn
-    });
-
-    pipeline_summary_lambda.addEnvironment("DYNAMODB_TABLE_ARN", table.tableArn);
-    pipeline_summary_lambda.addEnvironment("DYNAMODB_TABLE_NAME", table.tableName);
-    pipeline_summary_lambda.addEnvironment("S3_BUCKET_NAME", the_bucket.bucketName);
-    pipeline_summary_lambda.addEnvironment("S3_BUCKET_DATA_KEY", 'pipeline-state.json');
 
     the_bucket.addToResourcePolicy(new iam.PolicyStatement()
       .addAction('s3:*')
       .addResource(the_bucket.arnForObjects('*'))
       .addPrincipal(role.principal));
-        
-    const pipeline_event_rule = new events.EventRule(this, 'PipelineEvent', {
-        ruleName: 'PipelineEventRule',
-        description: 'Handles state change events from all codepipelines',
-        targets: [pipeline_event_lambda],
-    })
-
-    // to only get events at a more macro level, change the word 'Action' in detail type to 'Stage' or 'Pipeline'.
-    pipeline_event_rule.addEventPattern({
-      detailType: ['CodePipeline Action Execution State Change'],
-      source: ['aws.codepipeline'],
-    })
-
-    pipeline_event_lambda.addPermission('allowCloudWatchInvocation', {
-      principal: new iam.ServicePrincipal('events.amazonaws.com'),
-      sourceArn: pipeline_event_rule.ruleArn,
-    });
-
-    pipeline_event_lambda.addEnvironment("DYNAMODB_TABLE_ARN", table.tableArn);
-    pipeline_event_lambda.addEnvironment("DYNAMODB_TABLE_NAME", table.tableName);
-
+    
   }
 }
