@@ -1,0 +1,27 @@
+type Pipeline @model {
+  pipelineName: String!
+  pipelineVersion: String!
+  created: String
+  updated: String
+  stageStates: [StageState] 
+}
+type StageState @model {
+  stageName: String!
+  actionStates: [ActionState]
+  latestExecution: StageExecution
+}
+
+type ActionState @model {
+  actionName: String!
+  entityUrl: String
+  latestExecution: ActionExecution
+}
+
+type ActionExecution @model {
+  status: String!
+  summary: String
+}
+
+type StageExecution @model {
+  status: String!
+}
