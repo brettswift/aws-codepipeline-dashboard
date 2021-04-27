@@ -5,38 +5,31 @@ import s3deploy = require('@aws-cdk/aws-s3-deployment');
 import iam = require('@aws-cdk/aws-iam');
 import route53 = require('@aws-cdk/aws-route53');
 import events = require('@aws-cdk/aws-events')
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 
-function assert_required_param(param_name: string, param_value: string, suggestion?: string){
-  suggestion = suggestion || '<value>'
-  if(! param_value){
-    console.log("-------- PARAMETER REQUIRED ------")
-    console.log(`${param_name} is a required parameter` + 
-    `You can add it like this:  cdk deploy -c ${param_name}=${suggestion}`
-    )
-    console.log("")
-    throw new Error("required parameter")
-  }
-
+export interface CodepipelineDashboardProps {
+  namespace: string;
+  hostedZoneName: string;
+  restrictedCidrs: string;
 }
-
-export class CodepipelineDashboardStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+export class CodepipelineDashboard extends cdk.Construct {
+  constructor(scope: cdk.App, id: string, props: CodepipelineDashboardProps) {
+    super(scope, id);
 
     const hosted_zone_id = 'Z3BJ6K6RIION7M' // this is for s3, constant everywhere.
 
-    const bucket_name = this.node.getContext("bucket_name");
-    const hosted_zone_name = this.node.getContext("hosted_zone_name")
-    const restricted_cidrs = this.node.getContext("restricted_cidrs")
+    const bucket = new s3.Bucket(this, 'dashboardBucket', {
+      bucketName: `pipeline-dashboard-bucket-${props.namespace}-${cdk.Aws.ACCOUNT_ID}`
+    })
+    const bucket_name = bucket.bucketName
+
+    const hosted_zone_name = props.hostedZoneName
+    const restricted_cidrs = props.restrictedCidrs
     let all_cidrs;
 
     if(restricted_cidrs){
       all_cidrs = restricted_cidrs.replace(/ /g,'').split(",")
     }
-
-    assert_required_param('bucket_name', bucket_name);
-    assert_required_param('hosted_zone_name', hosted_zone_name, 'example.com')
 
     const website_bucket_name = bucket_name + '.' + hosted_zone_name
     
@@ -47,7 +40,7 @@ export class CodepipelineDashboardStack extends cdk.Stack {
     })
 
     const dns_entry = bucket_name + '.' + hosted_zone_name;
-    const s3_url = 's3-website-' + this.region + '.amazonaws.com';
+    const s3_url = 's3-website-' + cdk.Aws.REGION + '.amazonaws.com';
 
     const cfnAliasTaragetProps: route53.CfnRecordSet.AliasTargetProperty = {
       dnsName: s3_url,
@@ -63,59 +56,54 @@ export class CodepipelineDashboardStack extends cdk.Stack {
     
     new route53.CfnRecordSet(this, 'DashboardDNS', cfnRecordsetProps)
 
-    new cdk.Output(this, 'ExternalDNS', { value: 'http://' + dns_entry });
-    new cdk.Output(this, 'DirectBucketURL', { value: 'http://' + the_bucket.bucketName + '.' + s3_url });
+    new cdk.CfnOutput(this, 'ExternalDNS', { value: 'http://' + dns_entry });
+    new cdk.CfnOutput(this, 'DirectBucketURL', { value: 'http://' + the_bucket.bucketName + '.' + s3_url });
 
     const bucket_statement = the_bucket.grantPublicAccess();
     if(all_cidrs){
-      bucket_statement.addCondition('IpAddress', { "aws:SourceIp": all_cidrs });
+      bucket_statement.resourceStatement?.addCondition('IpAddress', { "aws:SourceIp": all_cidrs });
     }
     
     new s3deploy.BucketDeployment(this, 'DeployWebsite', {
-      source: s3deploy.Source.asset('../src'),
+      sources: [s3deploy.Source.asset('../src')],
       destinationBucket: the_bucket,
       retainOnDelete: true, // there are bugs if this is false
       // destinationKeyPrefix: 'web/sttic' // optional prefix in destination bucket
-    });
+    }as s3deploy.BucketDeploymentProps);
 
     // dynamodb table
     const table = new dynamodb.Table(this, 'Table', {
       readCapacity: 1,
-      writeCapacity: 1
-    });
-
-    table.addPartitionKey({ name: 'pipelineName', type: dynamodb.AttributeType.String });
-    table.addSortKey({ name: 'pipelineVersion', type: dynamodb.AttributeType.Number });
+      writeCapacity: 1,
+      partitionKey: { name: 'pipelineName', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'pipelineVersion', type: dynamodb.AttributeType.NUMBER },
+    }as dynamodb.TableProps);
 
     // lambda role
     const role = new iam.Role(this, 'LambdaExecutionRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
     });
     
-    role.addToPolicy(new iam.PolicyStatement()
-      .addAction("dynamoDB:*")
-      .addResource(table.tableArn)
-    );
+    const dynamoPolicy = new iam.PolicyStatement();
+    dynamoPolicy.addActions("dynamoDB:*")
+    dynamoPolicy.addResources(table.tableArn)
 
-    role.addToPolicy(new iam.PolicyStatement()
-      .addAction("logs:*")
-      .addAllResources()
-    );
+    const logPolicy = new iam.PolicyStatement()
+    logPolicy.addActions("logs:*")
+    logPolicy.addAllResources()
     
-    role.addToPolicy(new iam.PolicyStatement()
-      .addAction("codepipeline:GetPipelineState")
-      .addAllResources()
-    );
+    const pipelinePolicy = new iam.PolicyStatement()
+    pipelinePolicy.addActions("codepipeline:GetPipelineState")
+    pipelinePolicy.addAllResources()
     
-    role.addToPolicy(new iam.PolicyStatement()
-      .addAction("s3:*")
-      .addResource(the_bucket.bucketArn)
-      .addResource(the_bucket.bucketArn + "/*")
-    );
+    const s3Policy = new iam.PolicyStatement()
+    s3Policy.addActions("s3:*")
+    s3Policy.addResources(the_bucket.bucketArn)
+    s3Policy.addResources(the_bucket.bucketArn + "/*")
 
     // lambda function to handle events from codepipeline
     const pipeline_event_lambda = new lambda.Function(this, 'PipelineUpdateEvent', {
-      runtime: lambda.Runtime.NodeJS810,
+      runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'handlePipelineEvent/handlePipelineEvent.handle',
       code: lambda.Code.asset('../lambdas'),
       role: role,
@@ -123,7 +111,7 @@ export class CodepipelineDashboardStack extends cdk.Stack {
 
     //  lambda function to aggregate dynamo records into dashboard data
     const pipeline_summary_lambda = new lambda.Function(this, 'PipelineSummary', {
-      runtime: lambda.Runtime.NodeJS810,
+      runtime: lambda.Runtime.NODEJS_14_X,
       handler: 'createPipelineSummary/createPipelineSummary.handle',
       code: lambda.Code.asset('../lambdas'),
       role: role,

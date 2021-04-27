@@ -10,19 +10,19 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@types/node": "^8.9.4",
-    "typescript": "^3.1.2",
-    "aws-cdk": "^0.22.0"
+    "@types/node": "^15.0.0",
+    "aws-cdk": "^1.100.0",
+    "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@aws-cdk/aws-codepipeline": "^0.22.0",
-    "@aws-cdk/aws-dynamodb": "^0.22.0",
-    "@aws-cdk/aws-events": "^0.22.0",
-    "@aws-cdk/aws-lambda": "^0.22.0",
-    "@aws-cdk/aws-route53": "^0.22.0",
-    "@aws-cdk/aws-s3-deployment": "^0.22.0",
-    "@aws-cdk/aws-sns": "^0.22.0",
-    "@aws-cdk/aws-sqs": "^0.22.0",
-    "@aws-cdk/cdk": "^0.22.0"
+    "@aws-cdk/aws-codepipeline": "^1.100.0",
+    "@aws-cdk/aws-dynamodb": "^1.100.0",
+    "@aws-cdk/aws-events": "^1.100.0",
+    "@aws-cdk/aws-lambda": "^1.100.0",
+    "@aws-cdk/aws-route53": "^1.100.0",
+    "@aws-cdk/aws-s3-deployment": "^1.100.0",
+    "@aws-cdk/aws-sns": "^1.100.0",
+    "@aws-cdk/aws-sqs": "^1.100.0",
+    "@aws-cdk/cdk": "^0.36.1"
   }
 }
